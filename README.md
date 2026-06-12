@@ -51,6 +51,14 @@ It answers, in one command, the four questions every agent operator should be as
 Requires Python 3.8+. No dependencies.
 
 ```bash
+# one-line install (pipx or uv), then run 'operator' anywhere:
+pipx install git+https://github.com/Ludoonus/operator
+operator report
+
+# or without installing:
+uvx --from git+https://github.com/Ludoonus/operator operator report
+
+# or clone and run:
 git clone https://github.com/Ludoonus/operator && cd operator
 python3 -m opr.cli report                 # last 30 days, all projects
 python3 -m opr.cli report --days 7 --project myrepo
