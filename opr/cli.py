@@ -127,6 +127,45 @@ def _print_human(args, sessions, cost, audit, safety, eff, dollars):
     print()
 
 
+def cmd_budget(args) -> int:
+    from datetime import date
+    sessions = load_sessions(project_filter=args.project, since=now_utc() - timedelta(days=40))
+    if not sessions:
+        print("no sessions found", file=sys.stderr)
+        return 1
+    days = by_day(sessions)
+    today = now_utc().date()
+    month = today.strftime("%Y-%m")
+    month_days = [(d, tok, dol) for (d, tok, dol) in days if d.startswith(month)]
+    spent = sum(dol for _, _, dol in month_days)
+    spent_tok = sum(tok for _, tok, dol in month_days)
+    active = len(month_days) or 1
+    day_of_month = today.day
+    # days in this month
+    if today.month == 12:
+        next_month = date(today.year + 1, 1, 1)
+    else:
+        next_month = date(today.year, today.month + 1, 1)
+    days_in_month = (next_month - date(today.year, today.month, 1)).days
+    run_rate = spent / day_of_month if day_of_month else 0
+    projected = run_rate * days_in_month
+
+    print(f"\n  OPERATOR budget — {month}\n")
+    print(f"  spent so far:        ${spent:,.0f}  ({spent_tok:,} output tokens, {active} active days)")
+    print(f"  daily run-rate:      ${run_rate:,.0f}/day")
+    print(f"  projected month-end: ${projected:,.0f}")
+    if args.limit:
+        pct = 100 * spent / args.limit if args.limit else 0
+        proj_pct = 100 * projected / args.limit if args.limit else 0
+        bar = "█" * min(28, round(28 * spent / args.limit)) + "·" * max(0, 28 - round(28 * spent / args.limit))
+        print(f"  budget:              ${args.limit:,.0f}/mo")
+        print(f"  used:                [{bar}] {pct:.0f}%")
+        status = "OVER BUDGET" if projected > args.limit else "on track"
+        print(f"  projection vs budget: {proj_pct:.0f}% — {status}")
+    print("\n  (list-price estimate; ignores plan discounts.)\n")
+    return 0
+
+
 def cmd_card(args) -> int:
     since = now_utc() - timedelta(days=args.days)
     sessions = load_sessions(project_filter=args.project, since=since)
@@ -156,6 +195,10 @@ def main(argv=None) -> int:
     card.add_argument("--project")
     card.add_argument("--svg", help="write an SVG to this path instead of text")
     card.set_defaults(func=cmd_card)
+    bud = sub.add_parser("budget", help="monthly spend run-rate, projection, and budget status")
+    bud.add_argument("--limit", type=float, help="your monthly budget in USD (list-price estimate)")
+    bud.add_argument("--project")
+    bud.set_defaults(func=cmd_budget)
     args = ap.parse_args(argv)
     return args.func(args)
 
