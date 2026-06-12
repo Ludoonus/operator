@@ -102,7 +102,7 @@ and exports. [Operator Pro →](https://ludoonus.github.io/cc-powerpack/)
 Operator is the console; these are the rest of the kit:
 - [cc-powerpack](https://github.com/Ludoonus/cc-powerpack) — the guardrail hooks that
   *prevent* the risky actions Operator reports.
-- The Claude Code Operator's Handbook — the operational practices, in depth.
+- [The Claude Code Operator's Handbook](https://ludoonus.github.io/cc-powerpack/handbook/) — the operational practices in depth (18 chapters, \$29, free sample).
 
 ## License
 
