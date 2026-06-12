@@ -16,6 +16,7 @@ import json
 import sys
 from datetime import timedelta
 
+from .card import render_svg, render_text
 from .engine.audit import analyze_audit
 from .engine.cost import analyze_cost, blended_dollars
 from .engine.efficiency import analyze_efficiency
@@ -116,6 +117,21 @@ def _print_human(args, cost, audit, safety, eff, dollars):
     print()
 
 
+def cmd_card(args) -> int:
+    since = now_utc() - timedelta(days=args.days)
+    sessions = load_sessions(project_filter=args.project, since=since)
+    if not sessions:
+        print("no sessions found in window", file=sys.stderr)
+        return 1
+    if args.svg:
+        with open(args.svg, "w") as f:
+            f.write(render_svg(sessions, args.days))
+        print(f"wrote {args.svg}")
+    else:
+        print(render_text(sessions, args.days))
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="operator", description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -124,6 +140,11 @@ def main(argv=None) -> int:
     rep.add_argument("--project", help="filter by project dir substring")
     rep.add_argument("--json", action="store_true")
     rep.set_defaults(func=cmd_report)
+    card = sub.add_parser("card", help="a clean, shareable summary card (text or --svg)")
+    card.add_argument("--days", type=int, default=30)
+    card.add_argument("--project")
+    card.add_argument("--svg", help="write an SVG to this path instead of text")
+    card.set_defaults(func=cmd_card)
     args = ap.parse_args(argv)
     return args.func(args)
 
