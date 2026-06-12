@@ -73,3 +73,9 @@ Operator is the console; these are the rest of the kit:
 ## License
 
 Engine + `operator report` CLI: MIT.
+
+## Part of the agent-ops toolkit
+- [Operator](https://github.com/Ludoonus/operator) — unified cost/audit/safety/efficiency console for Claude Code
+- [cc-powerpack](https://github.com/Ludoonus/cc-powerpack) — guardrail hooks (secret scan, dangerous-command gate, worktree protection)
+- [agent-ready-template](https://github.com/Ludoonus/agent-ready-template) — project skeleton with guardrails pre-wired
+- [claude-token-report](https://github.com/Ludoonus/claude-token-report) — free local token-usage report
