@@ -1,5 +1,7 @@
 # Operator
 
+[![tests](https://github.com/Ludoonus/operator/actions/workflows/test.yml/badge.svg)](https://github.com/Ludoonus/operator/actions/workflows/test.yml)
+
 **The operations console for AI coding agents.** Unified cost, audit, safety, and
 efficiency for everyone running [Claude Code](https://claude.com/claude-code) — across
 every project, from the transcripts you already have. Runs entirely locally. No
