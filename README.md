@@ -62,6 +62,7 @@ uvx --from git+https://github.com/Ludoonus/operator operator report
 git clone https://github.com/Ludoonus/operator && cd operator
 python3 -m opr.cli report                 # last 30 days, all projects
 python3 -m opr.cli report --days 7 --project myrepo
+python3 -m opr.cli report --by-day        # per-day cost trend (bar chart)
 python3 -m opr.cli report --json          # machine-readable, for CI
 ```
 
