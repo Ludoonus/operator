@@ -55,6 +55,30 @@ python3 -m opr.cli report --days 7 --project myrepo
 python3 -m opr.cli report --json          # machine-readable, for CI
 ```
 
+## Share your stats — `operator card`
+
+A clean, screenshot-friendly summary of your Claude Code usage:
+
+```bash
+python3 -m opr.cli card                    # tidy terminal card
+python3 -m opr.cli card --svg mycard.svg   # SVG for sharing
+```
+
+```
+╭─────────────────────────────────────────────╮
+│ OPERATOR · my Claude Code, last 30 days     │
+├─────────────────────────────────────────────┤
+│ sessions                                 43 │
+│ output tokens                    52,264,441 │
+│ cache hit rate                        96.4% │
+│ est. list-price                     $25,908 │
+├─────────────────────────────────────────────┤
+│ measure yours: github.com/Ludoonus/operator │
+╰─────────────────────────────────────────────╯
+```
+
+Post yours — curious what everyone's cache hit rate looks like.
+
 ## Free vs Pro
 
 This open-source tier gives you the full **`operator report`** — the unified summary
