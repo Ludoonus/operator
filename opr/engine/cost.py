@@ -74,6 +74,25 @@ def rates_for_model(model: str) -> Optional[Rates]:
     return None
 
 
+def by_day(sessions: list[Session]):
+    """Output tokens and est. list-price dollars bucketed by calendar day (UTC).
+
+    Returns a list of (date_str, output_tokens, dollars) sorted by date.
+    """
+    out = {}     # date -> output tokens
+    dollars = {} # date -> dollars
+    for s in sessions:
+        for t in s.turns:
+            if not t.timestamp:
+                continue
+            day = t.timestamp.date().isoformat()
+            out[day] = out.get(day, 0) + t.output_tokens
+            rates = rates_for_model(t.model)
+            if rates:
+                dollars[day] = dollars.get(day, 0.0) + rates.turn_cost(t)
+    return [(d, out[d], dollars.get(d, 0.0)) for d in sorted(out)]
+
+
 def blended_dollars(sessions: list[Session]) -> Optional[float]:
     """Estimate cost using per-model known rates, summed across turns.
 

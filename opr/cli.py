@@ -18,7 +18,7 @@ from datetime import timedelta
 
 from .card import render_svg, render_text
 from .engine.audit import analyze_audit
-from .engine.cost import analyze_cost, blended_dollars
+from .engine.cost import analyze_cost, blended_dollars, by_day
 from .engine.efficiency import analyze_efficiency
 from .engine.safety import analyze_safety
 from .engine.transcripts import load_sessions, now_utc
@@ -72,7 +72,7 @@ def cmd_report(args) -> int:
         print(json.dumps(out, indent=2))
         return 0
 
-    _print_human(args, cost, audit, safety, eff, dollars)
+    _print_human(args, sessions, cost, audit, safety, eff, dollars)
     return 0
 
 
@@ -80,7 +80,7 @@ def _bar(label, value, width=24):
     return f"  {label:<22} {value:>14,}"
 
 
-def _print_human(args, cost, audit, safety, eff, dollars):
+def _print_human(args, sessions, cost, audit, safety, eff, dollars):
     print(f"\n  OPERATOR — last {args.days} days — {cost.sessions} sessions, {cost.turns} turns\n")
     print("  ── COST " + "─" * 40)
     print(_bar("output tokens", cost.output_tokens))
@@ -93,6 +93,16 @@ def _print_human(args, cost, audit, safety, eff, dollars):
     print("\n  top projects (by output tokens):")
     for proj, tok in cost.by_project.most_common(5):
         print(f"    {tok:>12,}  {proj[:48]}")
+
+    if getattr(args, "by_day", False):
+        days = by_day(sessions)[-14:]  # last 14 active days
+        if days:
+            peak = max(d[1] for d in days) or 1
+            print("\n  ── COST BY DAY (output tokens, last 14 active days) " + "─" * 5)
+            for date, tok, dol in days:
+                bar = "█" * max(1, round(28 * tok / peak))
+                amt = f" ${dol:,.0f}" if dol else ""
+                print(f"  {date}  {bar} {tok:,}{amt}")
 
     print("\n  ── AUDIT " + "─" * 39)
     print(f"  {len(audit.commands):,} commands · {len(audit.writes):,} file writes · "
@@ -139,6 +149,7 @@ def main(argv=None) -> int:
     rep.add_argument("--days", type=int, default=30)
     rep.add_argument("--project", help="filter by project dir substring")
     rep.add_argument("--json", action="store_true")
+    rep.add_argument("--by-day", action="store_true", help="show a per-day cost breakdown")
     rep.set_defaults(func=cmd_report)
     card = sub.add_parser("card", help="a clean, shareable summary card (text or --svg)")
     card.add_argument("--days", type=int, default=30)
